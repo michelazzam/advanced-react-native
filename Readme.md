@@ -11,3 +11,18 @@
   Animated.Values.Animated >> javascript object that helps us find where the item is on the screen
   Animated.Types.Spring >> will help us to see how the element is changing it's position or color
   Animated.Components.View >> what element are we animating
+
+
+  Animated.timing >> has a linear animation view; just get there
+  Animated.spring >> has a bouncy feeling 
+
+-default props in react functional component:
+  [function name].defaultProps = {
+  ....
+  }
+
+  in class component:
+  static defaultProps={
+    ....
+  }
+
