@@ -19,7 +19,7 @@ export const Deck = (props) => {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gesture) => {
-        state.position.setValue({ x: gesture.dx, y: gesture.dy });
+        position.setValue({ x: gesture.dx, y: gesture.dy });
       },
       onPanResponderRelease: (event, gesture) => {
         if (gesture.dx > SWIPE_THRESHOLD) {
@@ -32,26 +32,29 @@ export const Deck = (props) => {
       },
     })
   ).current;
-  const [state, setState] = useState({ position, panResponder });
+  const [state, setState] = useState({ });
 
   useEffect(() => {
-    const addIndex = async () => {
-
-      setState({ ...state, index: 0 });
-    };
-    addIndex();
+    UIManager.setLayoutAnimationEnabledExperimental &&
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    LayoutAnimation.spring();
   }, []);
+
+  useEffect(() => {
+  
+    setState({  index: 0 });
+  }, [props]);
 
   const forceSwipe = (direction) => {
     const x = direction === "right" ? SCREEN_WIDTH : -SCREEN_WIDTH;
-    Animated.timing(state.position, {
+    Animated.timing(position, {
       toValue: { x, y: 0 },
       duration: SWIPE_OUT_DURATION,
     }).start(() => onSwipeComplete(direction));
   };
 
   const resetPosition = () => {
-    Animated.spring(state.position, {
+    Animated.spring(position, {
       toValue: { x: 0, y: 0 },
     }).start();
   };
@@ -61,21 +64,20 @@ export const Deck = (props) => {
 
     const item = data[state.index];
     direction === "right" ? onSwipeRight(item) : onSwipeLeft(item);
-    setState({ ...state, index: state.index + 1 });
-    state.position.setValue({ x: 0, y: 0 });
-
-    console.log("done", state.index ,state);
+    setState({  index: state.index + 1 }); 
+    position.setValue({ x: 0, y: 0 });
   };
 
   const getCardStyle = () => {
-    const rotate = state.position.x.interpolate({
+    const rotate = position.x.interpolate({
       inputRange: [-SCREEN_WIDTH * 1.5, 0, SCREEN_WIDTH * 1.5],
       outputRange: ["-120deg", "0deg", "120deg"],
     });
-    return { ...state.position.getLayout(), transform: [{ rotate }] };
+    return { ...position.getLayout(), transform: [{ rotate }] };
   };
 
   const renderCards = () => {
+    console.log("stateee:",state)
     return props.data.map((item, i) => {
       if (i < state.index) {
         return null;
@@ -84,23 +86,30 @@ export const Deck = (props) => {
       if (i === state.index) {
         return (
           <Animated.View
-            {...state.panResponder.panHandlers}
+            {...panResponder.panHandlers}
             key={item.id}
-            style={getCardStyle()}
+            style={[getCardStyle(), styles.cardStyle, { zIndex: 99 }]}
           >
             {props.renderCard(item)}
           </Animated.View>
         );
       }
-      return props.renderCard(item);
-    });
+      return (
+        <Animated.View
+          key={item.id}
+          style={[styles.cardStyle, {  zIndex: 5 }]}
+        >
+          {props.renderCard(item)}
+        </Animated.View>
+      );
+    }).reverse();
   };
   return <View>{renderCards()}</View>;
 };
 
 Deck.defaultProps = {
   onSwipeRight: () => {},
-  onSwipeLeft: () => {},
+  onSwipeLeft: () => {}
 };
 
 const styles = StyleSheet.create({

@@ -26,3 +26,10 @@
     ....
   }
 
+-UIManager
+
+
+- User Authentication app
+   NEVER: user requests otp >> send device the token in http response >> text user the code (compare codes on user's device ) --- never do the token comparison on device level -- XXXXXX
+
+   BETTER TO DO: user requests OTP >> Acknowledge request >> generate code, save code on backend (using firebase) >> text user a code (twilio) >> user send us correct code >> compare codes on the server >> send user a JWT(json web token) to identify them (firebase)
